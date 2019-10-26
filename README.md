@@ -66,14 +66,18 @@ TERM RULES
 
 ```
 [ OPT LEVEL 0 ]
-target(wat -> x86) {
-    i32const = wat.i32const -> imm: [1.state.top()]
+wat_to_x86 = target(wat -> x86) {
+    $state = wat.$state
+
+    x86_imm =
+        i32const {} -> imm {$state.last()}
 }
 
 
 [ OPT LEVEL 1 ]
-target(x86 -> x86) {
-    t = x86.add -> x86.add iff 1[1] = 1[2]
+simple_opt = target(x86 -> x86) {
+    fold_zero =
+        add {"0", "0"} -> const {"0"}
 }
 ```
 
@@ -88,10 +92,10 @@ imm = const
 
 ```
 ;; target wat
-[state] = array of const
+$state = Array<const>
 
 const = [0-9]+
-i32const = "i32.const" const [state.push(const)]
+i32const = "i32.const" const ($state.push(const))
 ```
 --------------
 
